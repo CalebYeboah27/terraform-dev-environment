@@ -15,18 +15,18 @@ provider "aws" {
 
 
 resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block = var.vpc_cidr_block
 
   tags = {
-    "Name" = "Main VPC"
+    "Name" = "Production ${var.main_vpc_name}"
   }
 }
 
 # Create a subnet
 resource "aws_subnet" "web" {
   vpc_id = aws_vpc.main.id
-  cidr_block = "10.0.10.0/24"
-  availability_zone = "us-west-2a"
+  cidr_block = var.web_subnet
+  availability_zone = var.subnet_zone
 
   tags = {
     Name = "Web Subnet"
