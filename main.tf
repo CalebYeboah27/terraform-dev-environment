@@ -24,8 +24,8 @@ resource "aws_vpc" "main" {
 
 # Create a subnet
 resource "aws_subnet" "web" {
-  vpc_id = aws_vpc.main.id
-  cidr_block = var.web_subnet
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.web_subnet
   availability_zone = var.subnet_zone
 
   tags = {
@@ -59,16 +59,16 @@ resource "aws_default_security_group" "default_sec_group" {
   vpc_id = aws_vpc.main.id
 
   ingress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
     cidr_blocks = [var.my_public_ip]
   }
 
   ingress {
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -82,5 +82,14 @@ resource "aws_default_security_group" "default_sec_group" {
   tags = {
     "Name" = "Default Security Group"
   }
+}
+
+resource "aws_instance" "web-server" {
+  ami                         = "ami-0ad86651279e2c354"
+  instance_type               = "t2.micro"
+  subnet_id                   = aws_subnet.web.id
+  vpc_security_group_ids      = [aws_default_security_group.default_sec_group.id]
+  associate_public_ip_address = true
+  key_name                    = "production_ssh_key"
 }
 
