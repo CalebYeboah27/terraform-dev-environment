@@ -21,3 +21,7 @@ variable "main_vpc_name" {
     type = string
     description = "name of the main vpc"
 }
+
+variable "my_public_ip" {
+    description = "my public ip address"
+}
