@@ -87,7 +87,7 @@ resource "aws_default_security_group" "default_sec_group" {
 # Create a new Key Pair
 resource "aws_key_pair" "terraform_ssh_pair" {
   key_name = "terraform_rsa" 
-  public_key = file("/home/calebyeboah/.ssh/terraform_rsa.pub")
+  public_key = file("/home/cyeboah/.ssh/terraform_rsa.pub")
 }
 
 resource "aws_instance" "web-server" {
