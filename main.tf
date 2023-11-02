@@ -62,7 +62,7 @@ resource "aws_default_security_group" "default_sec_group" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.my_public_ip]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -84,12 +84,21 @@ resource "aws_default_security_group" "default_sec_group" {
   }
 }
 
+# Create a new Key Pair
+resource "aws_key_pair" "terraform_ssh_pair" {
+  key_name = "terraform_rsa" 
+  public_key = file("/home/calebyeboah/.ssh/terraform_rsa.pub")
+}
+
 resource "aws_instance" "web-server" {
   ami                         = "ami-0ad86651279e2c354"
   instance_type               = "t2.micro"
   subnet_id                   = aws_subnet.web.id
   vpc_security_group_ids      = [aws_default_security_group.default_sec_group.id]
   associate_public_ip_address = true
-  key_name                    = "production_ssh_key"
+  key_name                    = aws_key_pair.terraform_ssh_pair.key_name
+  tags = {
+    "Name" : "My Public Web Server"
+  }
 }
 
