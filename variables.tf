@@ -16,6 +16,10 @@ variable "subnet_zone" {
   # subnet_zone was set as environment variable
 }
 
+variable "ssh_public_key" {
+  type = string
+  description = "public key that permits ssh connection to the ec2 instance"
+}
 
 variable "main_vpc_name" {
   type        = string

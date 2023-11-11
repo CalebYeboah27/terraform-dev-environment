@@ -4,6 +4,11 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 4.16"
     }
+
+    # docker = {
+    #   source  = "kreuzwerker/docker"
+    #   version = "3.0.2"
+    # }
   }
 
   required_version = ">= 1.2.0"
@@ -72,6 +77,20 @@ resource "aws_default_security_group" "default_sec_group" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 5000
+    to_port     = 5000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -87,15 +106,32 @@ resource "aws_default_security_group" "default_sec_group" {
 # Create a new Key Pair
 resource "aws_key_pair" "terraform_ssh_pair" {
   key_name = "terraform_rsa" 
-  public_key = file("/home/cyeboah/.ssh/terraform_rsa.pub")
+  public_key = file(var.ssh_public_key)
+}
+
+
+data "aws_ami" "latest_amazon_linux2" {
+  owners = [ "amazon" ]
+  most_recent = true
+  filter {
+    name = "name"
+    values = ["amzn2-ami-kernel-*-x86_64-gp2"] 
+  }
+
+  filter {
+    name = "architecture"
+    values = [ "x86_64" ]
+  }
+
 }
 
 resource "aws_instance" "web-server" {
-  ami                         = "ami-0ad86651279e2c354"
+  ami                         = data.aws_ami.latest_amazon_linux2.id 
   instance_type               = "t2.micro"
   subnet_id                   = aws_subnet.web.id
   vpc_security_group_ids      = [aws_default_security_group.default_sec_group.id]
   associate_public_ip_address = true
+  user_data = file("script.sh")
   key_name                    = aws_key_pair.terraform_ssh_pair.key_name
   tags = {
     "Name" : "My Public Web Server"
